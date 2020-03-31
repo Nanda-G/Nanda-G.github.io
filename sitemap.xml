@@ -3,13 +3,8 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://blog.vnandag.me/about/</loc>
-    <lastmod>2020-03-27T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://blog.vnandag.me/</loc>
-    <lastmod>2020-03-27T00:00:00+00:00</lastmod>
+    <priority>0</priority>
   </url>
   
   <url>
@@ -17,11 +12,7 @@
   </url>
   
   <url>
-    <loc>https://blog.vnandag.me/extblogs/</loc>
-  </url>
-  
-  <url>
-    <loc>https://blog.vnandag.me/notes/</loc>
+    <loc>https://blog.vnandag.me/</loc>
   </url>
   
   <url>
