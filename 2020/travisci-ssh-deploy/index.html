@@ -178,7 +178,8 @@ But, having to do frequent changes makes it harder to run tests and deploy it to
 </ul>
 <h2 id="first-time-travis-setup">First-time Travis setup<a href="#first-time-travis-setup" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
 <p>If it&rsquo;s your first time using Travis then you need to define what OS, distribution and/or language your virtual environment will be using. For example:</p>
-<pre><code class="language-os:" data-lang="os:">  dist: bionic
+<pre><code>  os: linux
+  dist: bionic
   language: python
   python:
     -'3.7'
@@ -216,44 +217,38 @@ But, having to do frequent changes makes it harder to run tests and deploy it to
 <p><code>rm -f deploy_rsa deploy_rsa.pub</code></p>
 <p>This is very IMPORTANT, make sure that the private key is not on the repository.</p>
 <p>Your .travis.yml file must be looking something like this:</p>
-<pre><code class="language-addons:" data-lang="addons:">  ssh_known_hosts: &lt;DEPLOY-HOSTNAME&gt;
+<pre><code>addons:
+  ssh_known_hosts: &lt;DEPLOY-HOSTNAME&gt;
 
 before_deploy:
 - openssl aes-256-cbc -K $encrypted_&lt;...&gt;_key -iv $encrypted_&lt;...&gt;_iv -in deploy_rsa.enc -out /tmp/deploy_rsa -d
 - eval &quot;$(ssh-agent -s)&quot;
 - chmod 600 /tmp/deploy_rsa
-- ssh-add /tmp/deploy_rsa```
-
-Alright, before we go ahead with deployment, lets add some secrets to the repository, you can do it two ways.
-
-1. Using the Travis CLI tool:
-
-`travis encrypt --pro SOMEVAR=&quot;secretvalue&quot;`
-
-But, that adds the values in the .travis.yml file which looks kinda ugly so I chose to add it using the travis-ci.com website, it really depends on what you want to do.
-
-2. Using the travis-ci.com website
-
-..* Go to your TravisCI dashboard and pick the repository you want to work with. Click on the &quot;More Options&quot; hamburger menu and go into settings. There you will see an Environment Variables section, add your server's HOSTNAME and USERNAME to it just so you don't reveal your IP address in the .travis.yml file. ;)
-
-## Deployment
-
-Before we start writing the deployment script, it would be nice to create a `scripts/` folder and then place a `deploy.sh` file in that folder. Yes, the deployment script is just a single line but it would be easier to add more commands in there without populating up the `.travis.yml` file.
-
-The single line you would use to deploy is:
-
-`scp -r $TRAVIS_BUILD_DIR $USERNAME@$HOSTNAME:/path/to/repository/files`
-
-We need to put this script somewhere in the .travis.yml file, but it can't be just anywhere. We need to follow Travis' build lifecycle events. So, we will use the deploy script lifecycle event which looks like this:
-
-```deploy:
+- ssh-add /tmp/deploy_rsa
+</code></pre><p>Alright, before we go ahead with deployment, lets add some secrets to the repository, you can do it two ways.</p>
+<ol>
+<li>Using the Travis CLI tool:</li>
+</ol>
+<p><code>travis encrypt --pro SOMEVAR=&quot;secretvalue&quot;</code></p>
+<p>But, that adds the values in the .travis.yml file which looks kinda ugly so I chose to add it using the travis-ci.com website, it really depends on what you want to do.</p>
+<ol start="2">
+<li>Using the travis-ci.com website</li>
+</ol>
+<p>..* Go to your TravisCI dashboard and pick the repository you want to work with. Click on the &ldquo;More Options&rdquo; hamburger menu and go into settings. There you will see an Environment Variables section, add your server&rsquo;s HOSTNAME and USERNAME to it just so you don&rsquo;t reveal your IP address in the .travis.yml file. ;)</p>
+<h2 id="deployment">Deployment<a href="#deployment" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>Before we start writing the deployment script, it would be nice to create a <code>scripts/</code> folder and then place a <code>deploy.sh</code> file in that folder. Yes, the deployment script is just a single line but it would be easier to add more commands in there without populating up the <code>.travis.yml</code> file.</p>
+<p>The single line you would use to deploy is:</p>
+<p><code>scp -r $TRAVIS_BUILD_DIR $USERNAME@$HOSTNAME:/path/to/repository/files</code></p>
+<p>We need to put this script somewhere in the .travis.yml file, but it can&rsquo;t be just anywhere. We need to follow Travis&rsquo; build lifecycle events. So, we will use the deploy script lifecycle event which looks like this:</p>
+<pre><code>deploy:
     - provider: script
       skip_cleanup: true
       script:  scp -r $TRAVIS_BUILD_DIR $USERNAME@$HOSTNAME:/path/to/repository/files
       on:
       branch: master
 </code></pre><p>Or, if you created a separate <code>scripts/deploy.sh</code>, add the single <code>scp</code> command to the deploy.sh file and then your deploy script would look something like this:</p>
-<pre><code class="language-deploy:" data-lang="deploy:">    - provider: script
+<pre><code>deploy:
+    - provider: script
       skip_cleanup: true
       script: bash scripts/deploy.sh
       on:
@@ -264,7 +259,8 @@ We need to put this script somewhere in the .travis.yml file, but it can't be ju
 <h3 id="finishing-up-the-script">Finishing up the script<a href="#finishing-up-the-script" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
 <p>Just above both the <code>before_deploy:</code> stage you would include a <code>jobs:</code> section since the <code>jobs:</code> section entails a sequence of stages, i.e., your <code>before_deploy:</code> and <code>deploy:</code> stage.</p>
 <p>It would look something like this:</p>
-<pre><code class="language-jobs:" data-lang="jobs:">    include:
+<pre><code>jobs:
+    include:
       - stage: deploy
         if: branch = master AND type != pull_request
         script: skip
@@ -272,7 +268,8 @@ We need to put this script somewhere in the .travis.yml file, but it can't be ju
 <p>If you want to deploy multiple branches, you could add an extra condition, for example:
 <code>if: branch = master OR branch=testing AND type != pull_request</code></p>
 <p>And your deploy script would look like:</p>
-<pre><code class="language-deploy:" data-lang="deploy:">       - provider: script
+<pre><code>deploy:
+       - provider: script
          skip_cleanup: true
          script: bash scripts/deploy_master.sh
          on:
@@ -286,7 +283,8 @@ We need to put this script somewhere in the .travis.yml file, but it can't be ju
 <p>I hope you were able to understand how Travis works, its workflow and how it makes it very easy to deploy and run things without putting in much effort.</p>
 <p>Make sure to put some time reading the Travis Documentation, they are really good and it will generally help you do things properly and make the entire process much more effortless.</p>
 <p>For example, if someone creates a pull request but their code is really ugly and not properly linted, or want to run tests to make sure nothing broken is being pushed to master, you could add an extra linting and testing stage just above the deploy stage. It would look something like this:</p>
-<pre><code class="language-jobs:" data-lang="jobs:">   include:
+<pre><code>jobs:
+   include:
    - stage: flake8 test
      if: type = pull_request
      script: flake8 .
