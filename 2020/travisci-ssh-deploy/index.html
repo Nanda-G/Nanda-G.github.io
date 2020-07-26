@@ -181,50 +181,42 @@ But, having to do frequent changes makes it harder to run tests and deploy it to
 <pre><code class="language-os:" data-lang="os:">  dist: bionic
   language: python
   python:
-    -'3.7'```
-    
-To read more about this, check out [Travis' Getting Started Guide](https://docs.travis-ci.com/user/tutorial/#to-get-started-with-travis-ci-using-github) and [Building a Python Project Guide](https://docs.travis-ci.com/user/languages/python/) or the guide specific to what programming language you want to use.
-
-## Setup SSH encryption keys
-
-To be able to deploy and run commands on server, you need to have SSH access to it which means you will need an SSH keypair but of course we can't leave our private key lying around in our repository for everyone to see, so we need to encrypt it so that only the Travis CI can read it. For that, we need to use the Travis CLI to encrypt our files. [Here's the relevant Travis Documentation page for it.](https://docs.travis-ci.com/user/encrypting-files/)
-
-1. Install Travis
-
-`$ gem install travis`
-
-2. Log-in to Travis and authorise your GitHub account with it
-
-`$ travis login --com`
-
-The com argument is because we are using travis-ci.com and not travis-ci.org, make sure you are careful around the documentation since travis-ci.com and travis-ci.org have a few differences. [Here is an answer on StackOverflow explaining what the difference is.](https://devops.stackexchange.com/a/4305)
-
-3. Set up SSH keypair
-
-+ Generate the keypair
-
-`$ ssh-keygen -t rsa -b 4096 -C 'build@travis-ci.com' -f ./deploy_rsa`
-
-+ Encrypt the deploy_rsa file
-
-`$ travis encrypt-file deploy_rsa --add`
-
-The `--add` flag automatically adds the required lines in the .travis.yml file.
-
-+ Install Public SSH key on server
-
-`ssh-copy-id -i deploy_rsa.pub &lt;USERNAME&gt;@&lt;DEPLOY-HOSTNAME&gt;`
-
-+ DELETE the keypair
-
-`rm -f deploy_rsa deploy_rsa.pub`
-
-This is very IMPORTANT, make sure that the private key is not on the repository.
-
-Your .travis.yml file must be looking something like this:
-
-```addons:
-ssh_known_hosts: &lt;DEPLOY-HOSTNAME&gt;
+    -'3.7'
+</code></pre><p>To read more about this, check out <a href="https://docs.travis-ci.com/user/tutorial/#to-get-started-with-travis-ci-using-github">Travis&rsquo; Getting Started Guide</a> and <a href="https://docs.travis-ci.com/user/languages/python/">Building a Python Project Guide</a> or the guide specific to what programming language you want to use.</p>
+<h2 id="setup-ssh-encryption-keys">Setup SSH encryption keys<a href="#setup-ssh-encryption-keys" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>To be able to deploy and run commands on server, you need to have SSH access to it which means you will need an SSH keypair but of course we can&rsquo;t leave our private key lying around in our repository for everyone to see, so we need to encrypt it so that only the Travis CI can read it. For that, we need to use the Travis CLI to encrypt our files. <a href="https://docs.travis-ci.com/user/encrypting-files/">Here&rsquo;s the relevant Travis Documentation page for it.</a></p>
+<ol>
+<li>Install Travis</li>
+</ol>
+<p><code>$ gem install travis</code></p>
+<ol start="2">
+<li>Log-in to Travis and authorise your GitHub account with it</li>
+</ol>
+<p><code>$ travis login --com</code></p>
+<p>The com argument is because we are using travis-ci.com and not travis-ci.org, make sure you are careful around the documentation since travis-ci.com and travis-ci.org have a few differences. <a href="https://devops.stackexchange.com/a/4305">Here is an answer on StackOverflow explaining what the difference is.</a></p>
+<ol start="3">
+<li>Set up SSH keypair</li>
+</ol>
+<ul>
+<li>Generate the keypair</li>
+</ul>
+<p><code>$ ssh-keygen -t rsa -b 4096 -C 'build@travis-ci.com' -f ./deploy_rsa</code></p>
+<ul>
+<li>Encrypt the deploy_rsa file</li>
+</ul>
+<p><code>$ travis encrypt-file deploy_rsa --add</code></p>
+<p>The <code>--add</code> flag automatically adds the required lines in the .travis.yml file.</p>
+<ul>
+<li>Install Public SSH key on server</li>
+</ul>
+<p><code>ssh-copy-id -i deploy_rsa.pub &lt;USERNAME&gt;@&lt;DEPLOY-HOSTNAME&gt;</code></p>
+<ul>
+<li>DELETE the keypair</li>
+</ul>
+<p><code>rm -f deploy_rsa deploy_rsa.pub</code></p>
+<p>This is very IMPORTANT, make sure that the private key is not on the repository.</p>
+<p>Your .travis.yml file must be looking something like this:</p>
+<pre><code class="language-addons:" data-lang="addons:">  ssh_known_hosts: &lt;DEPLOY-HOSTNAME&gt;
 
 before_deploy:
 - openssl aes-256-cbc -K $encrypted_&lt;...&gt;_key -iv $encrypted_&lt;...&gt;_iv -in deploy_rsa.enc -out /tmp/deploy_rsa -d
@@ -255,85 +247,56 @@ The single line you would use to deploy is:
 We need to put this script somewhere in the .travis.yml file, but it can't be just anywhere. We need to follow Travis' build lifecycle events. So, we will use the deploy script lifecycle event which looks like this:
 
 ```deploy:
-  - provider: script
-    skip_cleanup: true
-    script:  scp -r $TRAVIS_BUILD_DIR $USERNAME@$HOSTNAME:/path/to/repository/files
-    on:
-    branch: master```
+    - provider: script
+      skip_cleanup: true
+      script:  scp -r $TRAVIS_BUILD_DIR $USERNAME@$HOSTNAME:/path/to/repository/files
+      on:
+      branch: master
+</code></pre><p>Or, if you created a separate <code>scripts/deploy.sh</code>, add the single <code>scp</code> command to the deploy.sh file and then your deploy script would look something like this:</p>
+<pre><code class="language-deploy:" data-lang="deploy:">    - provider: script
+      skip_cleanup: true
+      script: bash scripts/deploy.sh
+      on:
+        branch: master
+</code></pre><p>That&rsquo;s all for deployment and if you want to run any commands post deployment, you could add an extra line in your deploy script:</p>
+<p><code>ssh -i /tmp/deploy_rsa $USERNAME@$HOSTNAME  &quot;cd folder-name; &lt;run any commands or scripts&gt;&quot;</code></p>
+<p>Make sure there aren&rsquo;t any process that linger or else the command will not exit and the build will fail.</p>
+<h3 id="finishing-up-the-script">Finishing up the script<a href="#finishing-up-the-script" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>Just above both the <code>before_deploy:</code> stage you would include a <code>jobs:</code> section since the <code>jobs:</code> section entails a sequence of stages, i.e., your <code>before_deploy:</code> and <code>deploy:</code> stage.</p>
+<p>It would look something like this:</p>
+<pre><code class="language-jobs:" data-lang="jobs:">    include:
+      - stage: deploy
+        if: branch = master AND type != pull_request
+        script: skip
+</code></pre><p>What this does is that it runs the script only on a push to master and NOT if it&rsquo;s a pull request.</p>
+<p>If you want to deploy multiple branches, you could add an extra condition, for example:
+<code>if: branch = master OR branch=testing AND type != pull_request</code></p>
+<p>And your deploy script would look like:</p>
+<pre><code class="language-deploy:" data-lang="deploy:">       - provider: script
+         skip_cleanup: true
+         script: bash scripts/deploy_master.sh
+         on:
+           branch: master
+       - provider: script
+         skip_cleanup: true
+         script: bash scripts/deploy_testing.sh
+         on:
+           branch: testing
+</code></pre><h2 id="conclusion">Conclusion<a href="#conclusion" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>I hope you were able to understand how Travis works and its workflow and how it makes it very easy to deploy and run things without putting in much effort.</p>
+<p>Make sure to put some time reading the Travis Documentation, they are really good and it will generally help you do things properly and make the entire process much more effortless.</p>
+<p>For example, if someone creates a pull request but their code is really ugly and not properly linted, or want to run tests to make sure nothing broken is being pushed to master, you could add an extra linting and testing stage just above the deploy stage. It would look something like this:</p>
+<pre><code class="language-jobs:" data-lang="jobs:">   include:
+   - stage: flake8 test
+     if: type = pull_request
+     script: flake8 .
+</code></pre><p>This runs a flake8 styling test and if the code doesn&rsquo;t abibe by it, the Travis build will fail.</p>
+<p>Here&rsquo;s an example .travis.yml that I use to push a <a href="https://github.com/Super-Serious/bot">Telegram Bot written in Python</a> to a server:</p>
+<p><a href="https://github.com/Super-Serious/bot/blob/master/.travis.yml">https://github.com/Super-Serious/bot/blob/master/.travis.yml</a></p>
+<h2 id="contact">Contact<a href="#contact" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>If you find something wrong in the article or have any doubts, please don&rsquo;t hesitate to <a href="https://blog.vnandag.me/about/#need-to-get-in-contact-with-me">contact me.</a></p>
+<p>Thank you for reading!</p>
 
-Or, if you created a separate `scripts/deploy.sh`, add the single `scp` command to the deploy.sh file and then your deploy script would look something like this:
-
-```deploy:
-  - provider: script
-    skip_cleanup: true
-    script: bash scripts/deploy.sh
-    on:
-      branch: master```
-
-That's all for deployment and if you want to run any commands post deployment, you could add an extra line in your deploy script:
-
-`ssh -i /tmp/deploy_rsa $USERNAME@$HOSTNAME  &quot;cd folder-name; &lt;run any commands or scripts&gt;&quot;`
-
-Make sure there aren't any process that linger or else the command will not exit and the build will fail.
-
-### Finishing up the script
-
-Just above both the `before_deploy:` stage you would include a `jobs:` section since the `jobs:` section entails a sequence of stages, i.e., your `before_deploy:` and `deploy:` stage.
-
-It would look something like this:
-
-```jobs:
-  include:
-    - stage: deploy
-      if: branch = master AND type != pull_request
-      script: skip```
-      
-What this does is that it runs the script only on a push to master and NOT if it's a pull request.
-
-If you want to deploy multiple branches, you could add an extra condition, for example:
-`if: branch = master OR branch=testing AND type != pull_request`
-
-And your deploy script would look like:
-
-```deploy:
-     - provider: script
-       skip_cleanup: true
-       script: bash scripts/deploy_master.sh
-       on:
-         branch: master
-     - provider: script
-       skip_cleanup: true
-       script: bash scripts/deploy_testing.sh
-       on:
-         branch: testing```
-
-## Conclusion
-
-I hope you were able to understand how Travis works and its workflow and how it makes it very easy to deploy and run things without putting in much effort.
-
-Make sure to put some time reading the Travis Documentation, they are really good and it will generally help you do things properly and make the entire process much more effortless.
-
-For example, if someone creates a pull request but their code is really ugly and not properly linted, or want to run tests to make sure nothing broken is being pushed to master, you could add an extra linting and testing stage just above the deploy stage. It would look something like this:
-
-```jobs:
- include:
- - stage: flake8 test
-   if: type = pull_request
-   script: flake8 .```
-   
-This runs a flake8 styling test and if the code doesn't abibe by it, the Travis build will fail.
-
-Here's an example .travis.yml that I use to push a [Telegram Bot written in Python](https://github.com/Super-Serious/bot) to a server:
-
-https://github.com/Super-Serious/bot/blob/master/.travis.yml
-
-## Contact
-
-If you find something wrong in the article or have any doubts, please don't hesitate to [contact me.](https://blog.vnandag.me/about/#need-to-get-in-contact-with-me)
-
-
-Thank you for reading!
-</code></pre>
       </div></div>
   
 
