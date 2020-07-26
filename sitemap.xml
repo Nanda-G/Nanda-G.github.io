@@ -3,6 +3,16 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://blog.vnandag.me/posts/</loc>
+    <lastmod>2020-07-26T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://blog.vnandag.me/2020/travisci-ssh-deploy/</loc>
+    <lastmod>2020-07-26T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://blog.vnandag.me/about/</loc>
     <lastmod>2020-03-27T00:00:00+00:00</lastmod>
   </url>

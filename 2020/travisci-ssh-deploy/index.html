@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>TravisCI: Deploying to server using SSH :: Nanda Gopal — trying to find my niche.</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="description" content="What is Travis-CI? Well, TravisCI is what we call a Continuous Integration(CI) tool. CI is a practice of merging in small code changes frequently instead of doing it at the end of a development cycle where there is a ton of code and you are bound to run into issues which will be harder to debug. But, having to do frequent changes makes it harder to run tests and deploy it to your server and that&amp;rsquo;s where Travis steps in." />
+<meta name="keywords" content="blog" />
+<meta name="robots" content="noodp" />
+<link rel="canonical" href="https://blog.vnandag.me/2020/travisci-ssh-deploy/" />
+
+
+
+
+<link rel="stylesheet" href="https://blog.vnandag.me/assets/style.css">
+
+  <link rel="stylesheet" href="https://blog.vnandag.me/assets/red.css">
+
+
+
+
+
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://blog.vnandag.me/img/apple-touch-icon-144-precomposed.png">
+
+  <link rel="shortcut icon" href="https://blog.vnandag.me/img/favicon/red.png">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+<meta name="twitter:creator" content="" />
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="TravisCI: Deploying to server using SSH :: Nanda Gopal">
+<meta property="og:description" content="What is Travis-CI? Well, TravisCI is what we call a Continuous Integration(CI) tool. CI is a practice of merging in small code changes frequently instead of doing it at the end of a development cycle where there is a ton of code and you are bound to run into issues which will be harder to debug. But, having to do frequent changes makes it harder to run tests and deploy it to your server and that&amp;rsquo;s where Travis steps in." />
+<meta property="og:url" content="https://blog.vnandag.me/2020/travisci-ssh-deploy/" />
+<meta property="og:site_name" content="TravisCI: Deploying to server using SSH" />
+<meta property="og:image" content="https://blog.vnandag.me">
+<meta property="og:image:width" content="2048">
+<meta property="og:image:height" content="1024">
+
+
+  <meta property="article:published_time" content="2020-07-26 00:00:00 &#43;0000 UTC" />
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body class="">
+
+
+<div class="container center headings--one-size">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    Nanda Gopal
+  </div>
+</a>
+
+    </div>
+    <div class="menu-trigger">menu</div>
+  </div>
+  
+    <nav class="menu">
+  <ul class="menu__inner menu__inner--desktop">
+    
+      
+        
+          <li><a href="/about">About</a></li>
+        
+      
+        
+          <li><a href="/notes">Notes</a></li>
+        
+      
+      
+        <ul class="menu__sub-inner">
+          <li class="menu__sub-inner-more-trigger">Show more ▾</li>
+
+          <ul class="menu__sub-inner-more hidden">
+            
+              
+                <li><a href="/extblogs">Resources</a></li>
+              
+            
+              
+                <li><a href="/showcase">Showcase</a></li>
+              
+            
+          </ul>
+        </ul>
+      
+    
+
+    
+  </ul>
+
+  <ul class="menu__inner menu__inner--mobile">
+    
+      
+        <li><a href="/about">About</a></li>
+      
+    
+      
+        <li><a href="/notes">Notes</a></li>
+      
+    
+      
+        <li><a href="/extblogs">Resources</a></li>
+      
+    
+      
+        <li><a href="/showcase">Showcase</a></li>
+      
+    
+    
+  </ul>
+</nav>
+
+  
+
+</header>
+
+
+  <div class="content">
+    
+<div class="post">
+  <h1 class="post-title">
+    <a href="https://blog.vnandag.me/2020/travisci-ssh-deploy/">TravisCI: Deploying to server using SSH</a></h1>
+  <div class="post-meta">
+      
+    <span class="post-date">
+      2020-07-26
+    </span>
+    
+    
+  </div>
+
+  
+
+  
+
+  <div class="post-content"><div>
+        <h2 id="what-is-travis-ci">What is Travis-CI?<a href="#what-is-travis-ci" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>Well, TravisCI is what we call a Continuous Integration(CI) tool. CI is a practice of merging in small code changes frequently instead of doing it at the end of a development cycle where there is a ton of code and you are bound to run into issues which will be harder to debug.
+But, having to do frequent changes makes it harder to run tests and deploy it to your server and that&rsquo;s where Travis steps in. Travis makes it easier to automate your building, deploying and testing stages.</p>
+<h2 id="how-does-it-work">How does it work?<a href="#how-does-it-work" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>Travis clones your GitHub repository into a new virtual environment and carries out the series of tasks you write out in your Travis testing file.(.travis.yml)</p>
+<p>To learn more about the builds &amp; job lifecycle, check out these two posts:</p>
+<ol>
+<li><a href="https://docs.travis-ci.com/user/for-beginners/#builds-stages-jobs-and-phases">Builds, Stages, Jobs and Phases</a></li>
+<li><a href="https://docs.travis-ci.com/user/job-lifecycle/#the-job-lifecycle">The Job Lifecycle</a></li>
+</ol>
+<h2 id="our-goals">Our Goals<a href="#our-goals" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<ul>
+<li>Deploy to a server.</li>
+<li>Run any required scripts on the server if required.</li>
+</ul>
+<h2 id="assumptions">Assumptions<a href="#assumptions" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<ul>
+<li>You are using GitHub.</li>
+</ul>
+<h2 id="first-time-travis-setup">First-time Travis setup<a href="#first-time-travis-setup" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>If it&rsquo;s your first time using Travis then you need to define what OS, distribution and/or language your virtual environment will be using. For example:</p>
+<pre><code class="language-os:" data-lang="os:">  dist: bionic
+  language: python
+  python:
+    -'3.7'```
+    
+To read more about this, check out [Travis' Getting Started Guide](https://docs.travis-ci.com/user/tutorial/#to-get-started-with-travis-ci-using-github) and [Building a Python Project Guide](https://docs.travis-ci.com/user/languages/python/) or the guide specific to what programming language you want to use.
+
+## Setup SSH encryption keys
+
+To be able to deploy and run commands on server, you need to have SSH access to it which means you will need an SSH keypair but of course we can't leave our private key lying around in our repository for everyone to see, so we need to encrypt it so that only the Travis CI can read it. For that, we need to use the Travis CLI to encrypt our files. [Here's the relevant Travis Documentation page for it.](https://docs.travis-ci.com/user/encrypting-files/)
+
+1. Install Travis
+
+`$ gem install travis`
+
+2. Log-in to Travis and authorise your GitHub account with it
+
+`$ travis login --com`
+
+The com argument is because we are using travis-ci.com and not travis-ci.org, make sure you are careful around the documentation since travis-ci.com and travis-ci.org have a few differences. [Here is an answer on StackOverflow explaining what the difference is.](https://devops.stackexchange.com/a/4305)
+
+3. Set up SSH keypair
+
++ Generate the keypair
+
+`$ ssh-keygen -t rsa -b 4096 -C 'build@travis-ci.com' -f ./deploy_rsa`
+
++ Encrypt the deploy_rsa file
+
+`$ travis encrypt-file deploy_rsa --add`
+
+The `--add` flag automatically adds the required lines in the .travis.yml file.
+
++ Install Public SSH key on server
+
+`ssh-copy-id -i deploy_rsa.pub &lt;USERNAME&gt;@&lt;DEPLOY-HOSTNAME&gt;`
+
++ DELETE the keypair
+
+`rm -f deploy_rsa deploy_rsa.pub`
+
+This is very IMPORTANT, make sure that the private key is not on the repository.
+
+Your .travis.yml file must be looking something like this:
+
+```addons:
+ssh_known_hosts: &lt;DEPLOY-HOSTNAME&gt;
+
+before_deploy:
+- openssl aes-256-cbc -K $encrypted_&lt;...&gt;_key -iv $encrypted_&lt;...&gt;_iv -in deploy_rsa.enc -out /tmp/deploy_rsa -d
+- eval &quot;$(ssh-agent -s)&quot;
+- chmod 600 /tmp/deploy_rsa
+- ssh-add /tmp/deploy_rsa```
+
+Alright, before we go ahead with deployment, lets add some secrets to the repository, you can do it two ways.
+
+1. Using the Travis CLI tool:
+
+`travis encrypt --pro SOMEVAR=&quot;secretvalue&quot;`
+
+But, that adds the values in the .travis.yml file which looks kinda ugly so I chose to add it using the travis-ci.com website, it really depends on what you want to do.
+
+2. Using the travis-ci.com website
+
+..* Go to your TravisCI dashboard and pick the repository you want to work with. Click on the &quot;More Options&quot; hamburger menu and go into settings. There you will see an Environment Variables section, add your server's HOSTNAME and USERNAME to it just so you don't reveal your IP address in the .travis.yml file. ;)
+
+## Deployment
+
+Before we start writing the deployment script, it would be nice to create a `scripts/` folder and then place a `deploy.sh` file in that folder. Yes, the deployment script is just a single line but it would be easier to add more commands in there without populating up the `.travis.yml` file.
+
+The single line you would use to deploy is:
+
+`scp -r $TRAVIS_BUILD_DIR $USERNAME@$HOSTNAME:/path/to/repository/files`
+
+We need to put this script somewhere in the .travis.yml file, but it can't be just anywhere. We need to follow Travis' build lifecycle events. So, we will use the deploy script lifecycle event which looks like this:
+
+```deploy:
+  - provider: script
+    skip_cleanup: true
+    script:  scp -r $TRAVIS_BUILD_DIR $USERNAME@$HOSTNAME:/path/to/repository/files
+    on:
+    branch: master```
+
+Or, if you created a separate `scripts/deploy.sh`, add the single `scp` command to the deploy.sh file and then your deploy script would look something like this:
+
+```deploy:
+  - provider: script
+    skip_cleanup: true
+    script: bash scripts/deploy.sh
+    on:
+      branch: master```
+
+That's all for deployment and if you want to run any commands post deployment, you could add an extra line in your deploy script:
+
+`ssh -i /tmp/deploy_rsa $USERNAME@$HOSTNAME  &quot;cd folder-name; &lt;run any commands or scripts&gt;&quot;`
+
+Make sure there aren't any process that linger or else the command will not exit and the build will fail.
+
+### Finishing up the script
+
+Just above both the `before_deploy:` stage you would include a `jobs:` section since the `jobs:` section entails a sequence of stages, i.e., your `before_deploy:` and `deploy:` stage.
+
+It would look something like this:
+
+```jobs:
+  include:
+    - stage: deploy
+      if: branch = master AND type != pull_request
+      script: skip```
+      
+What this does is that it runs the script only on a push to master and NOT if it's a pull request.
+
+If you want to deploy multiple branches, you could add an extra condition, for example:
+`if: branch = master OR branch=testing AND type != pull_request`
+
+And your deploy script would look like:
+
+```deploy:
+     - provider: script
+       skip_cleanup: true
+       script: bash scripts/deploy_master.sh
+       on:
+         branch: master
+     - provider: script
+       skip_cleanup: true
+       script: bash scripts/deploy_testing.sh
+       on:
+         branch: testing```
+
+## Conclusion
+
+I hope you were able to understand how Travis works and its workflow and how it makes it very easy to deploy and run things without putting in much effort.
+
+Make sure to put some time reading the Travis Documentation, they are really good and it will generally help you do things properly and make the entire process much more effortless.
+
+For example, if someone creates a pull request but their code is really ugly and not properly linted, or want to run tests to make sure nothing broken is being pushed to master, you could add an extra linting and testing stage just above the deploy stage. It would look something like this:
+
+```jobs:
+ include:
+ - stage: flake8 test
+   if: type = pull_request
+   script: flake8 .```
+   
+This runs a flake8 styling test and if the code doesn't abibe by it, the Travis build will fail.
+
+Here's an example .travis.yml that I use to push a [Telegram Bot written in Python](https://github.com/Super-Serious/bot) to a server:
+
+https://github.com/Super-Serious/bot/blob/master/.travis.yml
+
+## Contact
+
+If you find something wrong in the article or have any doubts, please don't hesitate to [contact me.](https://blog.vnandag.me/about/#need-to-get-in-contact-with-me)
+
+
+Thank you for reading!
+</code></pre>
+      </div></div>
+  
+
+  
+
+</div>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+        <span>© 2020 Powered by <a href="http://gohugo.io">Hugo</a></span>
+    
+        <span>:: Theme made by <a href="https://twitter.com/panr">panr</a></span>
+      </div>
+  </div>
+</footer>
+
+<script src="https://blog.vnandag.me/assets/main.js"></script>
+<script src="https://blog.vnandag.me/assets/prism.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

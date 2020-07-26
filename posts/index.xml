@@ -6,18 +6,18 @@
     <description>Recent content in Posts on Nanda Gopal</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
+    <lastBuildDate>Sun, 26 Jul 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://blog.vnandag.me/posts/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>Mathematics</title>
-      <link>https://blog.vnandag.me/1/integral/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <title>TravisCI: Deploying to server using SSH</title>
+      <link>https://blog.vnandag.me/2020/travisci-ssh-deploy/</link>
+      <pubDate>Sun, 26 Jul 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://blog.vnandag.me/1/integral/</guid>
-      <description>$$\int_{a}^{b} x^2 dx$$
-This is an integral.</description>
+      <guid>https://blog.vnandag.me/2020/travisci-ssh-deploy/</guid>
+      <description>What is Travis-CI? Well, TravisCI is what we call a Continuous Integration(CI) tool. CI is a practice of merging in small code changes frequently instead of doing it at the end of a development cycle where there is a ton of code and you are bound to run into issues which will be harder to debug. But, having to do frequent changes makes it harder to run tests and deploy it to your server and that&amp;rsquo;s where Travis steps in.</description>
     </item>
     
   </channel>

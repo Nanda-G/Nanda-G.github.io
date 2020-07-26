@@ -12,14 +12,23 @@
     
     
     <item>
+      <title>TravisCI: Deploying to server using SSH</title>
+      <link>https://blog.vnandag.me/2020/travisci-ssh-deploy/</link>
+      <pubDate>Sun, 26 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.vnandag.me/2020/travisci-ssh-deploy/</guid>
+      <description>What is Travis-CI? Well, TravisCI is what we call a Continuous Integration(CI) tool. CI is a practice of merging in small code changes frequently instead of doing it at the end of a development cycle where there is a ton of code and you are bound to run into issues which will be harder to debug. But, having to do frequent changes makes it harder to run tests and deploy it to your server and that&amp;rsquo;s where Travis steps in.</description>
+    </item>
+    
+    <item>
       <title>About Me</title>
       <link>https://blog.vnandag.me/about/</link>
       <pubDate>Fri, 27 Mar 2020 00:00:00 +0000</pubDate>
       
       <guid>https://blog.vnandag.me/about/</guid>
-      <description>I am a first-year engineering undergrad student. I enjoy tinkering around with Linux and playing around with software. Interested in Systems &amp;amp; Networks.
+      <description>I am a second-year engineering undergrad student. I enjoy tinkering around with Linux and playing around with software. Interested in Systems &amp;amp; Networks.
 Here is my GitHub.
-Need to get in contact with me?  Telegram Email LinkedIn  </description>
+Need to get in contact with me?  Matrix: (at)nanda-g:matrix(dot)org Email:VNandaGopal(at)protonmail(dot)com  </description>
     </item>
     
     <item>
