@@ -210,11 +210,11 @@ But, having to do frequent changes makes it harder to run tests and deploy it to
 <ul>
 <li>Install Public SSH key on server</li>
 </ul>
-<p><code>ssh-copy-id -i deploy_rsa.pub &lt;USERNAME&gt;@&lt;DEPLOY-HOSTNAME&gt;</code></p>
+<p><code>$ ssh-copy-id -i deploy_rsa.pub &lt;USERNAME&gt;@&lt;DEPLOY-HOSTNAME&gt;</code></p>
 <ul>
 <li>DELETE the keypair</li>
 </ul>
-<p><code>rm -f deploy_rsa deploy_rsa.pub</code></p>
+<p><code>$ rm -f deploy_rsa deploy_rsa.pub</code></p>
 <p>This is very IMPORTANT, make sure that the private key is not on the repository.</p>
 <p>Your .travis.yml file must be looking something like this:</p>
 <pre><code>addons:
@@ -229,7 +229,7 @@ before_deploy:
 <ol>
 <li>Using the Travis CLI tool:</li>
 </ol>
-<p><code>travis encrypt --pro SOMEVAR=&quot;secretvalue&quot;</code></p>
+<p><code>$ travis encrypt --pro SOMEVAR=&quot;secretvalue&quot;</code></p>
 <p>But, that adds the values in the .travis.yml file which looks kinda ugly so I chose to add it using the travis-ci.com website, it really depends on what you want to do.</p>
 <ol start="2">
 <li>Using the travis-ci.com website</li>
