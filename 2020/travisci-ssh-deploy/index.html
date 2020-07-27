@@ -238,7 +238,7 @@ before_deploy:
 <h2 id="deployment">Deployment<a href="#deployment" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
 <p>Before we start writing the deployment script, it would be nice to create a <code>scripts/</code> folder and then place a <code>deploy.sh</code> file in that folder. Yes, the deployment script is just a single line but it would be easier to add more commands in there without populating up the <code>.travis.yml</code> file.</p>
 <p>The single line you would use to deploy is:</p>
-<p><code>scp -r $TRAVIS_BUILD_DIR $USERNAME@$HOSTNAME:/path/to/repository/files</code></p>
+<p><code>ssh -i /tmp/deploy_rsa $USERNAME@$HOSTNAME &quot;cd &lt;repo-directory&gt;; git pull origin &lt;branch-name&gt;&quot;</code></p>
 <p>We need to put this script somewhere in the .travis.yml file, but it can&rsquo;t be just anywhere. We need to follow Travis&rsquo; build lifecycle events. So, we will use the deploy script lifecycle event which looks like this:</p>
 <pre><code>deploy:
     - provider: script
@@ -254,7 +254,7 @@ before_deploy:
       on:
         branch: master
 </code></pre><p>That&rsquo;s all for deployment and if you want to run any commands post deployment, you could add an extra line in your deploy script:</p>
-<p><code>ssh -i /tmp/deploy_rsa $USERNAME@$HOSTNAME  &quot;cd folder-name; &lt;run any commands or scripts&gt;&quot;</code></p>
+<p><code>ssh -i /tmp/deploy_rsa $USERNAME@$HOSTNAME  &quot;cd &lt;repo-directory&gt;; &lt;run any command(s) or script(s)&gt;;&quot;</code></p>
 <p>Make sure there aren&rsquo;t any process that linger or else the command will not exit and the build will fail.</p>
 <h3 id="finishing-up-the-script">Finishing up the script<a href="#finishing-up-the-script" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
 <p>Just above both the <code>before_deploy:</code> stage you would include a <code>jobs:</code> section since the <code>jobs:</code> section entails a sequence of stages, i.e., your <code>before_deploy:</code> and <code>deploy:</code> stage.</p>
